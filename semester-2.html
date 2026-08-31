@@ -1,0 +1,655 @@
+<title>Fall 2026 Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --bg:#f4f5f7; --panel:#ffffff; --panel2:#fafbfc; --ink:#1a1d24; --muted:#697086;
+  --line:#e4e7ee; --line2:#eef0f5; --accent:#e11d48; --accent-soft:#fce7ec;
+  --shadow:0 1px 2px rgba(20,25,40,.04),0 4px 16px rgba(20,25,40,.05);
+  --warn-bg:#fff4e5; --warn-ink:#9a5b00; --ok:#15803d; --bad:#c81e40;
+  --radius:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1115; --panel:#171a21; --panel2:#1d212a; --ink:#e9ecf2; --muted:#98a1b3;
+    --line:#262b36; --line2:#20242d; --accent:#fb5b76; --accent-soft:#3a1a24;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+    --warn-bg:#3a2a12; --warn-ink:#f0b866; --ok:#4ade80; --bad:#fb7185;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1115; --panel:#171a21; --panel2:#1d212a; --ink:#e9ecf2; --muted:#98a1b3;
+  --line:#262b36; --line2:#20242d; --accent:#fb5b76; --accent-soft:#3a1a24;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+  --warn-bg:#3a2a12; --warn-ink:#f0b866; --ok:#4ade80; --bad:#fb7185;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:20px 16px 80px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:4px}
+h1{font-size:26px;margin:0;letter-spacing:-.02em}
+.sub{color:var(--muted);font-size:14px;margin-top:2px}
+.statusline{font-size:12px;margin-top:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;flex:none}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:18px 0 6px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:20}
+.tab{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:8px 14px;border-radius:999px;font-size:14px;cursor:pointer;font-weight:600}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.card h2{font-size:18px;margin:0 0 2px;letter-spacing:-.01em;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.card h2 .cnt{color:var(--muted);font-weight:500;font-size:14px}
+.section-hint{color:var(--muted);font-size:13px;margin:0 0 14px}
+.grid{display:grid;gap:14px}
+@media(min-width:720px){.grid.cols2{grid-template-columns:1fr 1fr}}
+.course{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel2);position:relative}
+.course .bar{height:6px}
+.course .body{padding:14px 16px}
+.course h3{margin:0 0 8px;font-size:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.course .cardbtns{position:absolute;top:12px;right:12px;display:flex;gap:6px}
+.iconbtn{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:8px;padding:3px 8px;font-size:12px;cursor:pointer}
+.iconbtn:hover{color:var(--accent);border-color:var(--accent)}
+.pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;color:#fff;letter-spacing:.02em}
+.pending{background:var(--warn-bg);color:var(--warn-ink);font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+.meta{font-size:13.5px;color:var(--muted);margin:3px 0;display:flex;gap:7px}
+.meta b{color:var(--ink);font-weight:600}
+.meta .ic{width:16px;flex:none;text-align:center;opacity:.7}
+.gradebreak{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+.gradebreak table{width:100%;border-collapse:collapse;font-size:13px}
+.gradebreak td{padding:3px 0}
+.gradebreak td:last-child{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.data{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+table.data th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel)}
+table.data td{padding:9px 10px;border-bottom:1px solid var(--line2);vertical-align:top}
+table.data tr.done td{opacity:.5}
+table.data tr.done .item-name{text-decoration:line-through}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.wt{font-variant-numeric:tabular-nums;font-weight:700}
+.date-c{white-space:nowrap;font-variant-numeric:tabular-nums}
+.warnflag{color:var(--warn-ink);cursor:help;font-weight:700}
+.chk{width:20px;height:20px;accent-color:var(--accent);cursor:pointer}
+.soon{color:var(--bad);font-weight:700}
+.reading-src{color:var(--muted);font-size:12.5px}
+.linkcell a{color:var(--accent);text-decoration:none;font-weight:600;font-size:12.5px}
+.linkcell .addlink{border:1px dashed var(--line);background:none;color:var(--muted);border-radius:7px;padding:2px 8px;font-size:12px;cursor:pointer}
+.calc-course{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px;background:var(--panel2)}
+.calc-course h3{margin:0 0 10px;font-size:16px;display:flex;align-items:center;gap:8px}
+.calc-row{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--line2)}
+.calc-row .nm{flex:1;font-size:14px}
+.calc-row .wtag{font-size:12px;color:var(--muted);width:44px;text-align:right;font-variant-numeric:tabular-nums}
+.calc-row input{width:74px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font-size:14px;text-align:right}
+.calc-out{margin-top:12px;display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.bignum{font-size:30px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.gradeltr{font-size:15px;font-weight:700;padding:3px 10px;border-radius:8px;background:var(--accent-soft);color:var(--accent)}
+.target-line{margin-top:10px;font-size:13.5px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
+.target-line select{padding:3px 6px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--ink)}
+.sb{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:var(--panel2)}
+.sb .when{font-weight:700;font-size:13.5px;white-space:nowrap;min-width:150px}
+.sb .what{flex:1;font-size:13.5px;color:var(--muted)}
+.sb .del{color:var(--muted);cursor:pointer;border:none;background:none;font-size:16px;padding:0 4px}
+.addrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.addrow input,.addrow select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font-size:13.5px}
+.btn{background:var(--accent);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:13.5px;font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn.sm{padding:6px 11px;font-size:12.5px}
+.key{display:flex;flex-wrap:wrap;gap:8px}
+.keyitem{display:flex;align-items:center;gap:7px;font-size:13px;padding:5px 11px;border:1px solid var(--line);border-radius:999px;background:var(--panel2)}
+.legend-note{font-size:12px;color:var(--muted);margin-top:8px}
+.page{display:none}
+.page.active{display:block}
+.mini{font-size:12px;color:var(--muted)}
+.notice{background:var(--warn-bg);color:var(--warn-ink);border-radius:12px;padding:12px 14px;font-size:13.5px;margin-bottom:14px}
+.themebtn{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:999px;padding:6px 12px;font-size:12.5px;cursor:pointer}
+kbd{font-size:11px;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+/* progress */
+.prog{display:flex;align-items:center;gap:12px;margin:8px 0}
+.prog .plabel{font-size:13px;min-width:96px;color:var(--muted)}
+.prog .track{flex:1;height:10px;background:var(--line2);border-radius:999px;overflow:hidden}
+.prog .fill{height:100%;border-radius:999px;transition:width .3s}
+.prog .pval{font-size:13px;font-variant-numeric:tabular-nums;min-width:70px;text-align:right;font-weight:600}
+/* today */
+.today-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line2);font-size:14px}
+.today-item .tt{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+/* attendance */
+.att-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line2)}
+.att-row .anm{flex:1;min-width:160px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
+.counter{display:flex;align-items:center;gap:6px}
+.counter button{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:16px;cursor:pointer;line-height:1}
+.counter .cval{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;font-weight:700}
+.att-status{font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:999px}
+.att-ok{background:var(--accent-soft);color:var(--ok)}
+.att-warn{background:var(--warn-bg);color:var(--warn-ink)}
+.att-bad{background:#fde2e6;color:var(--bad)}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(10,12,18,.55);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:24px 12px;overflow:auto}
+.overlay.show{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:560px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.modal h3{margin:0 0 14px;font-size:18px}
+.field{margin-bottom:11px}
+.field label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px;font-weight:700}
+.field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--ink);font-size:14px;font-family:inherit}
+.field.row2{display:flex;gap:10px}
+.field.row2>div{flex:1}
+.slotrow,.grrow{display:flex;gap:8px;margin-bottom:6px;align-items:center}
+.slotrow select,.slotrow input,.grrow input{padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--ink);font-size:13px}
+.slotrow .del,.grrow .del{border:none;background:none;color:var(--muted);cursor:pointer;font-size:16px}
+.modal-actions{display:flex;justify-content:space-between;gap:10px;margin-top:16px;flex-wrap:wrap}
+.modal-actions .right{display:flex;gap:8px;margin-left:auto}
+.btn.danger{background:transparent;color:var(--bad);border:1px solid var(--bad)}
+.btn.gray{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+input[type=color]{padding:2px;height:38px;width:52px}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Fall 2026 — Semester Dashboard</h1>
+      <div class="sub">Darya · Maqsut Narikbayev University, ISE</div>
+      <div class="statusline"><span id="syncdot" class="dot" style="background:#f59e0b"></span><span id="syncmsg" class="mini">Starting…</span></div>
+    </div>
+    <button class="themebtn" onclick="toggleTheme()">◐ Theme</button>
+  </header>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-p="overview">Overview</button>
+    <button class="tab" data-p="courses">Courses</button>
+    <button class="tab" data-p="deadlines">Deadlines</button>
+    <button class="tab" data-p="readings">Readings</button>
+    <button class="tab" data-p="attendance">Attendance</button>
+    <button class="tab" data-p="study">Study blocks</button>
+    <button class="tab" data-p="grades">Grades</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <section class="page active" id="p-overview">
+    <div class="card">
+      <h2>This semester at a glance</h2>
+      <div id="progressWrap"></div>
+    </div>
+    <div class="card">
+      <h2>Today <span class="cnt" id="todayDate"></span></h2>
+      <div id="todayWrap"></div>
+    </div>
+    <div class="card">
+      <h2>Weekly timetable</h2>
+      <p class="section-hint">Your recurring classes by weekday. Edit any class on the <b>Courses</b> tab — changes sync across your devices.</p>
+      <div class="tbl-scroll"><table class="data" id="timetable" style="min-width:640px"></table></div>
+    </div>
+    <div class="card">
+      <h2>Next up</h2>
+      <p class="section-hint">Nearest deadlines across all courses. ⚠️ = exact date is a best guess from a week-only syllabus entry — verify.</p>
+      <div class="tbl-scroll"><table class="data" id="nextup" style="min-width:520px"></table></div>
+    </div>
+  </section>
+
+  <!-- COURSES -->
+  <section class="page" id="p-courses">
+    <div class="card">
+      <h2>Courses <span class="cnt" id="courseCount"></span>
+        <button class="btn sm" onclick="editCourse(null)">+ Add course</button></h2>
+      <p class="section-hint">Schedule, room, instructor, contact, grading. Tap <b>Edit</b> on any card to change times, rooms, or add the courses you don't have syllabi for yet. Everything saves &amp; syncs instantly.</p>
+      <div class="grid cols2" id="courseCards"></div>
+    </div>
+  </section>
+
+  <!-- DEADLINES -->
+  <section class="page" id="p-deadlines">
+    <div class="card">
+      <h2>All deadlines</h2>
+      <p class="section-hint">Every graded item, sorted by date. Check off as you finish. ⚠️ = date guessed from a week-only syllabus entry — verify with instructor / Canvas.</p>
+      <div class="tbl-scroll"><table class="data" id="deadlineTbl" style="min-width:640px"></table></div>
+      <div class="addrow">
+        <input id="dl-name" placeholder="New deadline (e.g. Essay draft)" style="min-width:170px">
+        <select id="dl-course"></select>
+        <input id="dl-date" type="date">
+        <input id="dl-wt" type="number" placeholder="% wt" style="width:80px">
+        <button class="btn" onclick="addDeadline()">+ Add</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- READINGS -->
+  <section class="page" id="p-readings">
+    <div class="card">
+      <h2>Reading schedule <button class="btn sm" onclick="editReading(null)">+ Add reading</button></h2>
+      <p class="section-hint">Required readings mapped to the class week they're due for. Tap <b>+ link</b> to attach a URL (Google Drive, DOI, PDF) so the reading is one click away. Check off as you read.</p>
+      <div class="tbl-scroll"><table class="data" id="readingTbl" style="min-width:680px"></table></div>
+    </div>
+  </section>
+
+  <!-- ATTENDANCE -->
+  <section class="page" id="p-attendance">
+    <div class="card">
+      <h2>Attendance tracker</h2>
+      <p class="section-hint">Your syllabi auto-fail you for missing too many classes (most: 20% / ~6 classes → grade F). Log each class you miss (or attend) so you never cross the line. Set each course's miss limit with the ✎. Saved &amp; synced.</p>
+      <div id="attWrap"></div>
+    </div>
+  </section>
+
+  <!-- STUDY -->
+  <section class="page" id="p-study">
+    <div class="card">
+      <h2>Weekly study blocks</h2>
+      <p class="section-hint">Suggested recurring times to read <b>before</b> the class they prep for. Edit or delete freely; add your own below.</p>
+      <div id="sbList"></div>
+      <div class="addrow">
+        <select id="sb-day"><option>Sunday</option><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option></select>
+        <input id="sb-time" placeholder="e.g. 18:00–20:00" style="width:130px">
+        <input id="sb-what" placeholder="What to work on" style="min-width:160px">
+        <button class="btn" onclick="addBlock()">+ Add block</button>
+      </div>
+      <p class="mini" style="margin-top:8px">Tell me your fixed weekly commitments (work, clubs, free days) and I'll rebuild these around them.</p>
+    </div>
+  </section>
+
+  <!-- GRADES -->
+  <section class="page" id="p-grades">
+    <div class="card">
+      <h2>Grade calculator</h2>
+      <p class="section-hint">Enter your score (%) on each component as you get it back. Shows your running grade and what average you'd need on remaining work to hit a target. Leave blank if not graded yet.</p>
+      <div id="calcWrap"></div>
+    </div>
+  </section>
+
+  <div class="card">
+    <h2>Sync status</h2>
+    <div id="syncCard" class="mini"></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modalBody"></div></div>
+
+<script>
+/* ============================================================
+   FIREBASE CONFIG
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDvovcuj3nMIFGD-LOj5pxI04zaSqCCnSc",
+  authDomain: "semester-dashboard-fall2026.firebaseapp.com",
+  databaseURL: "https://semester-dashboard-fall2026-default-rtdb.firebaseio.com",
+  projectId: "semester-dashboard-fall2026",
+  storageBucket: "semester-dashboard-fall2026.firebasestorage.app",
+  messagingSenderId: "530541739524",
+  appId: "1:530541739524:web:6a408c13a59ea03c153f51"
+};
+
+/* ============================================================
+   DEFAULT DATA (edit here to change baseline; in-app edits
+   override these and sync via Firebase)
+   ============================================================ */
+const COURSES = {
+  MACRO: {name:"Macroeconomics I", color:"#e11d48", instr:"Tanaguzova M.", email:"", office:"", oh:"",
+    sched:[["Mon","15:15–16:30","416a"],["Fri","15:15–16:30","418a"]], credits:"", pending:true, grading:[]},
+  MATH:  {name:"Mathematics I (Calculus)", color:"#2563eb", instr:"Moldir Toleubek", email:"m_toleubek@kazguu.kz",
+    office:"8 Korgalzhyn, MNU", oh:"By appointment (email)",
+    sched:[["Mon","16:40–17:55","427"],["Fri","16:40–17:55","427"]], credits:"5 ECTS",
+    grading:[["Assignments",5],["Midterm 1",25],["Midterm 2",30],["Midterm 3",40]]},
+  RUS:   {name:"Russian Language I (Basic)", color:"#16a34a", instr:"Baimysheva L.", email:"", office:"", oh:"",
+    sched:[["Tue","08:30–10:10","414"],["Thu","08:30–10:10","414"]], credits:"", pending:true, grading:[]},
+  SPK:   {name:"Module of Socio-Political Knowledge I", color:"#9333ea", instr:"Darina Zhunussova (app: Dauletbek D.)",
+    email:"d_zhunussova@kazguu.kz", office:"8 Korgalzhyn, MNU, ISE", oh:"By appointment (email)",
+    sched:[["Tue","10:20–11:35","402"],["Fri","10:20–11:35","402"]], credits:"4 ECTS",
+    grading:[["Exam 1",25],["Exam 2",25],["Exam 3",25],["Exam 4 (presentation)",25]]},
+  HIST:  {name:"History of Kazakhstan (ISE) 1", color:"#d97706", instr:"Rustem Zholdybalin", email:"r_zholdybalin@mnu.kz",
+    office:"8 Korgalzhyn, MNU, Office 515", oh:"Sat 15:30–17:30 (Office 515) or by email",
+    sched:[["Tue","16:40–17:55","402"],["Thu","16:40–17:55","432"]], credits:"5 ECTS",
+    grading:[["Exam 1",30],["Exam 2",35],["Exam 3",35]]},
+  STEP:  {name:"A Step to Graduate", color:"#0891b2", instr:"Sultanmuratova D.", email:"", office:"", oh:"",
+    sched:[["Wed","16:40–17:55","428"]], credits:"", pending:true, grading:[]},
+  ICT:   {name:"Information & Communication Technologies", color:"#64748b", instr:"Yerdaulet Absattar", email:"y_absattar@kazguu.kz",
+    office:"8 Korgalzhyn, KAZGUU building", oh:"TBA",
+    sched:[["Thu","20:50–22:05","Online"]], credits:"5 ECTS",
+    grading:[["Participation",5],["Quizzes",10],["Midterm 1",20],["Midterm 2",20],["Midterm 3",20],["Presentation",25]]},
+  LEARN: {name:"Learning How to Learn", color:"#db2777", instr:"Toktabayeva A.", email:"", office:"", oh:"",
+    sched:[["Sat","20:25–21:40","Online"]], credits:"", pending:true, grading:[]},
+  PE:    {name:"Physical Education III", color:"#65a30d", instr:"Aldongarov A.", email:"", office:"", oh:"",
+    sched:[["Sat","time TBD","—"]], credits:"", pending:true, grading:[]}
+};
+
+const DEADLINES = [
+  {id:"MATH-M1", c:"MATH", n:"Midterm 1", wt:25, d:"2026-10-03", warn:true, note:"Week 5"},
+  {id:"MATH-A1", c:"MATH", n:"Assignment 1", wt:2.5, d:"2026-10-30", warn:true, note:"Week 9 (assignments 5% split w9+w14)"},
+  {id:"MATH-M2", c:"MATH", n:"Midterm 2", wt:30, d:"2026-11-06", warn:true, note:"Week 10"},
+  {id:"MATH-A2", c:"MATH", n:"Assignment 2", wt:2.5, d:"2026-12-04", warn:true, note:"Week 14"},
+  {id:"MATH-M3", c:"MATH", n:"Midterm 3 (final)", wt:40, d:"2026-12-11", warn:true, note:"Week 15"},
+  {id:"SPK-E1", c:"SPK", n:"Exam 1 (in-class MCQ)", wt:25, d:"2026-09-22", warn:true, note:"Week 4"},
+  {id:"SPK-E2", c:"SPK", n:"Exam 2 (in-class MCQ)", wt:25, d:"2026-10-13", warn:true, note:"Week 7"},
+  {id:"SPK-E3", c:"SPK", n:"Exam 3 (in-class MCQ)", wt:25, d:"2026-11-03", warn:true, note:"Week 10"},
+  {id:"SPK-E4S",c:"SPK", n:"Exam 4 — slides due (24h before)", wt:0, d:"2026-11-23", warn:true, note:"before presentation"},
+  {id:"SPK-E4", c:"SPK", n:"Exam 4 (group article presentation)", wt:25, d:"2026-11-24", warn:true, note:"Week 12 (Nov 24–30)"},
+  {id:"HIST-E1", c:"HIST", n:"Exam 1 (in-class)", wt:30, d:"2026-10-06", warn:true, note:"Week 6"},
+  {id:"HIST-E2", c:"HIST", n:"Exam 2 (in-class)", wt:35, d:"2026-11-03", warn:true, note:"Week 10"},
+  {id:"HIST-E3", c:"HIST", n:"Exam 3 (in-class, final)", wt:35, d:"2026-12-08", warn:true, note:"Week 15"},
+  {id:"ICT-Q1", c:"ICT", n:"Quiz 1", wt:2, d:"2026-09-10", warn:true, note:"Week 2 (quizzes 10% total)"},
+  {id:"ICT-Q2", c:"ICT", n:"Quiz 2", wt:2, d:"2026-09-24", warn:true, note:"Week 4"},
+  {id:"ICT-Q3", c:"ICT", n:"Quiz 3", wt:2, d:"2026-10-08", warn:true, note:"Week 6"},
+  {id:"ICT-M1", c:"ICT", n:"Midterm 1", wt:20, d:"2026-10-15", warn:true, note:"Week 7"},
+  {id:"ICT-M2", c:"ICT", n:"Midterm 2", wt:20, d:"2026-10-29", warn:true, note:"Week 9"},
+  {id:"ICT-Q4", c:"ICT", n:"Quiz 4", wt:2, d:"2026-11-12", warn:true, note:"Week 11"},
+  {id:"ICT-Q5", c:"ICT", n:"Quiz 5", wt:2, d:"2026-11-26", warn:true, note:"Week 13"},
+  {id:"ICT-M3", c:"ICT", n:"Midterm 3", wt:20, d:"2026-12-03", warn:true, note:"Week 14"},
+  {id:"ICT-PR", c:"ICT", n:"Group Presentation", wt:25, d:"2026-12-10", warn:true, note:"Week 15"}
+];
+
+const READINGS = [
+  {id:"SPK-w1", c:"SPK", wk:"W1 · Sep 1–7", d:"2026-09-02", t:"Ch.1 What Is Politics & Political Science — Rom, Hidaka & Walker, Intro to Political Science (OpenStax)"},
+  {id:"SPK-w2a",c:"SPK", wk:"W2 · Sep 8–14", d:"2026-09-08", t:"Ch.3 Political Ideology; Ch.8 Interest Groups, Parties & Elections — Rom et al."},
+  {id:"SPK-w2b",c:"SPK", wk:"W2 · Sep 8–14", d:"2026-09-08", t:"Ch.4 Institutional constraints on parties — Isaacs, Party System Formation in Kazakhstan (2011)"},
+  {id:"SPK-w3a",c:"SPK", wk:"W3 · Sep 15–21", d:"2026-09-15", t:"Ch.13 Governing Regimes — Rom et al. (+ Kahoot)"},
+  {id:"SPK-w3b",c:"SPK", wk:"W3 · Sep 15–21", d:"2026-09-15", t:"Ch.5 Democracies; Ch.6 Authoritarian regimes — Caramani, Comparative Politics"},
+  {id:"SPK-w5a",c:"SPK", wk:"W5 · Sep 29–Oct 5", d:"2026-09-29", t:"Ch.15 Int'l Law & Organizations; Ch.16 Int'l Political Economy — Rom et al. (+ Kahoot)"},
+  {id:"SPK-w6a",c:"SPK", wk:"W6 · Oct 6–12", d:"2026-10-06", t:"Ch.15 Regions — Caramani; Vinokurov (2017) EAEU — Russian J. of Economics 3(1)"},
+  {id:"SPK-w6b",c:"SPK", wk:"W6 · Oct 6–12", d:"2026-10-06", t:"Regional orgs: Lukin et al. (2025) SCO; Scott & Askerov (2024) CSTO; Rahimov (2025) Org. of Turkic States"},
+  {id:"SPK-w8a",c:"SPK", wk:"W8 · Oct 20–26", d:"2026-10-20", t:"Ch.2 Political Behavior; Ch.4 Civil Liberties; Ch.5 Public Opinion — Rom et al. (+ Kahoot)"},
+  {id:"SPK-w9a",c:"SPK", wk:"W9 · Oct 27–Nov 2", d:"2026-10-27", t:"Ch.6 Group Political Activity; Ch.7 Civil Rights — Rom et al.; Constitution of Kazakhstan, Art. 1–39"},
+  {id:"SPK-w9b",c:"SPK", wk:"W9 · Oct 27–Nov 2", d:"2026-10-27", t:"Ch.17 Political Culture — Caramani; Paperlab «Невидимое разнообразие» (Tlegenova et al.)"},
+  {id:"SPK-w11a",c:"SPK",wk:"W11 · Nov 10–16", d:"2026-11-10", t:"Ch.1 Nature & process of social research — Bryman, Social Research Methods (4th ed.)"},
+  {id:"SPK-w11b",c:"SPK",wk:"W11 · Nov 10–16", d:"2026-11-10", t:"Ch.3 Research Designs; Ch.7 Quantitative; Ch.17 Qualitative research — Bryman"},
+  {id:"HIST-w1",c:"HIST", wk:"W1 · Sep 1–7", d:"2026-09-02", t:"Golden (1990) Central Asia X: Economy before the Timurids — Encyclopaedia Iranica", link:"https://www.iranicaonline.org/articles/central-asia-x/"},
+  {id:"HIST-w2",c:"HIST", wk:"W2 · Sep 8–14", d:"2026-09-08", t:"Findlay & Lundahl (2006) Economics of Chinggis Khan; Blaydes & Paik (2020) Silk Roads — AJPS 65(1)"},
+  {id:"HIST-w3",c:"HIST", wk:"W3 · Sep 15–21", d:"2026-09-15", t:"Cao et al. (2021) Herding, armed conflict & culture of honor (NBER w29250); Kerven et al. (2021) Pastoralism at Scale"},
+  {id:"HIST-w4",c:"HIST", wk:"W4 · Sep 22–28", d:"2026-09-22", t:"Guirkinger & Aldashev (2016) Clans and Ploughs — J. of Economic History 76(1)"},
+  {id:"HIST-w5",c:"HIST", wk:"W5 · Sep 29–Oct 5", d:"2026-09-29", t:"Rottier (2003) The Kazakness of sedentarization — Central Asian Survey 22(1)"},
+  {id:"HIST-w6",c:"HIST", wk:"W6 · Oct 6–12", d:"2026-10-06", t:"Pomfret (2002) State-Directed Diffusion of Technology: cotton harvesting in Soviet C. Asia  ⟶ Exam 1 this week"},
+  {id:"HIST-w7",c:"HIST", wk:"W7 · Oct 13–19", d:"2026-10-13", t:"Sailaubay & Zhanbossinova (2024) Collectivization; Markevich, Naumenko & Qian (2024) Ukrainian Famine Mortality"},
+  {id:"HIST-w8",c:"HIST", wk:"W8 · Oct 20–26", d:"2026-10-20", t:"Nikolova, Popova & Otrachshenko (2019) Stalin and the origins of Mistrust — J. of Public Economics"},
+  {id:"HIST-w9",c:"HIST", wk:"W9 · Oct 27–Nov 2", d:"2026-10-27", t:"Kim & Shida (2017) Shortages & the informal economy in the Soviet republics — Economic History Review 70(4)"},
+  {id:"HIST-w11",c:"HIST",wk:"W11 · Nov 10–16", d:"2026-11-10", t:"Bhattacharya, Gathmann & Miller (2013) Gorbachev Anti-Alcohol campaign & Russia's mortality crisis"},
+  {id:"HIST-w12",c:"HIST",wk:"W12 · Nov 17–23", d:"2026-11-17", t:"Ahrens & Stark (2014) Emulating Developmental States? Economic transition in Kazakhstan"},
+  {id:"HIST-w13",c:"HIST",wk:"W13 · Nov 24–30", d:"2026-11-24", t:"Murphy (2006) Illusory transition? Elite reconstitution in Kazakhstan 1989–2002 — Europe-Asia Studies 58(4)"},
+  {id:"HIST-w14",c:"HIST",wk:"W14 · Dec 1–7", d:"2026-12-01", t:"Pomfret (2010) Central Asia after two decades of independence — UNU-WIDER WP 2010/53"},
+  {id:"MATH-r1",c:"MATH", wk:"W1–2", d:"2026-09-01", t:"Functions; Limits & Continuity — Thomas' Calculus (Weir/Hass/Thomas)"},
+  {id:"MATH-r2",c:"MATH", wk:"W3–6", d:"2026-09-15", t:"Differentiation & derivatives; Applications of derivatives — Thomas' Calculus"},
+  {id:"MATH-r3",c:"MATH", wk:"W7–9", d:"2026-10-13", t:"Integration (parts, partial fractions, definite integrals, FTC) — Thomas' Calculus"},
+  {id:"MATH-r4",c:"MATH", wk:"W10–15", d:"2026-11-03", t:"Multivariable functions; Constrained optimization & Lagrange multipliers — Thomas' Calculus"},
+  {id:"ICT-r1",c:"ICT", wk:"Weekly", d:"2026-09-03", t:"Handouts sent before each class (no set textbook) — check Canvas ahead of each Thursday session"}
+];
+
+const STUDY_DEFAULT = [
+  {id:"sb1", day:"Sunday",    time:"18:00–20:00", what:"Week planning + start History reading (for Tue)"},
+  {id:"sb2", day:"Monday",    time:"19:00–21:00", what:"Socio-Political reading (for Tue) + finish History"},
+  {id:"sb3", day:"Wednesday", time:"18:00–20:00", what:"History reading (for Thu) + ICT topic review"},
+  {id:"sb4", day:"Thursday",  time:"12:00–14:00", what:"Socio-Political reading (for Fri) + Math practice"},
+  {id:"sb5", day:"Saturday",  time:"13:00–15:00", what:"Math problem sets / catch-up on the week"}
+];
+
+const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const DAY3={Sun:"Sunday",Mon:"Monday",Tue:"Tuesday",Wed:"Wednesday",Thu:"Thursday",Fri:"Friday",Sat:"Saturday"};
+const GRADE_SCALE = [[95,"A"],[90,"A-"],[85,"B+"],[80,"B"],[75,"B-"],[70,"C+"],[65,"C"],[60,"C-"],[55,"D+"],[50,"D"],[0,"F"]];
+function letterFor(p){for(const [t,l] of GRADE_SCALE){if(p>=t)return l;}return "F";}
+
+/* ================= STATE / STORAGE ================= */
+const LS_KEY = "fall2026_dash_v1";
+let state = loadLocal();
+function loadLocal(){try{return JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){return {}}}
+function saveLocal(){try{localStorage.setItem(LS_KEY, JSON.stringify(state))}catch(e){}}
+state.checks=state.checks||{}; state.grades=state.grades||{};
+state.custom=state.custom||{deadlines:[],blocks:[]}; state.blocksDel=state.blocksDel||{};
+state.coursesOverride=state.coursesOverride||{}; state.coursesHidden=state.coursesHidden||{}; state.customCourses=state.customCourses||{};
+state.readingLinks=state.readingLinks||{}; state.customReadings=state.customReadings||[]; state.attendance=state.attendance||{};
+
+/* ================= FIREBASE ================= */
+let fbRef=null;
+function setSync(color,msg){document.getElementById("syncdot").style.background=color;document.getElementById("syncmsg").textContent=msg;renderSyncCard(msg,color);}
+function renderSyncCard(msg,color){
+  const el=document.getElementById("syncCard");if(!el)return;
+  const green=color==="#15803d";
+  el.innerHTML=`<span class="dot" style="background:${color}"></span><b style="color:var(--ink)">${msg}</b><br>
+  ${green?"Your checkmarks, grades, schedule edits and reading links are shared between every device that opens this page.":
+    "Sync runs only when this page is opened directly or hosted (GitHub Pages / Firebase Hosting) — not inside an in-app preview. Your data is still saved on this device meanwhile."}
+  <br><span class="mini">Realtime Database is in test mode — fine for a personal tracker; just don't post the database URL publicly.</span>`;
+}
+function initFirebase(){
+  if(!FIREBASE_CONFIG.apiKey){setSync("#f59e0b","Local only (no Firebase config)");return;}
+  setSync("#f59e0b","Connecting…");
+  const s1=document.createElement("script");s1.src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js";
+  s1.onload=()=>{const s2=document.createElement("script");s2.src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js";
+    s2.onload=fbReady;s2.onerror=()=>setSync("#c81e40","Offline / preview — saved on this device");document.head.appendChild(s2);};
+  s1.onerror=()=>setSync("#c81e40","Offline / preview — saved on this device");
+  document.head.appendChild(s1);
+}
+function fbReady(){
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    fbRef=firebase.database().ref("dashboard");
+    fbRef.on("value",snap=>{
+      const r=snap.val();
+      if(r&&typeof r==="object"){
+        if(r.checks) for(const k in r.checks){ if(r.checks[k]===false) delete state.checks[String(k)]; else state.checks[String(k)]=true; }
+        if(r.grades) for(const k in r.grades){ const kk=String(k).replace(/__/g,"|"); if(r.grades[k]===null) delete state.grades[kk]; else state.grades[kk]=r.grades[k]; }
+        if(r.custom) state.custom=r.custom;
+        if(r.blocksDel) state.blocksDel=r.blocksDel;
+        if(r.coursesOverride) state.coursesOverride=r.coursesOverride;
+        if(r.coursesHidden) state.coursesHidden=r.coursesHidden;
+        if(r.customCourses) state.customCourses=r.customCourses;
+        if(r.readingLinks) state.readingLinks=r.readingLinks;
+        if(r.customReadings) state.customReadings=r.customReadings;
+        if(r.attendance) state.attendance=r.attendance;
+        saveLocal(); renderAll();
+      }
+      setSync("#15803d","Synced across devices");
+    },err=>setSync("#c81e40","Sync read error: "+err.code));
+  }catch(e){setSync("#c81e40","Sync init failed — saved on this device");}
+}
+function pushKey(path,val){saveLocal();if(!fbRef)return;const u={};u[path]=val;fbRef.update(u).catch(e=>setSync("#c81e40","Write failed: "+(e.code||e.message)));}
+
+/* ================= HELPERS ================= */
+function esc(s){return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function fmtDate(iso){const [y,m,d]=iso.split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});}
+function daysUntil(iso){const [y,m,d]=iso.split("-").map(Number);const dt=new Date(y,m-1,d);const n=new Date();n.setHours(0,0,0,0);return Math.round((dt-n)/864e5);}
+function getCourses(){const out={};for(const k in COURSES){if(!state.coursesHidden[k])out[k]=JSON.parse(JSON.stringify(COURSES[k]));}
+  for(const k in state.coursesOverride){if(!state.coursesHidden[k])out[k]=state.coursesOverride[k];}
+  for(const k in state.customCourses){out[k]=state.customCourses[k];}return out;}
+function allDeadlines(){return DEADLINES.concat(state.custom.deadlines||[]).slice().sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);}
+function allReadings(){return READINGS.concat(state.customReadings||[]).slice().sort((a,b)=>a.d<b.d?-1:1);}
+function courseColor(k){const c=getCourses()[k];return c?c.color:"#888";}
+function courseShort(k){const c=getCourses()[k];return c?c.name.split(" ")[0]:k;}
+
+/* ================= RENDER: overview ================= */
+function renderProgress(){
+  const rd=allReadings(),dl=allDeadlines();
+  const rDone=rd.filter(r=>state.checks[r.id]).length, dDone=dl.filter(d=>state.checks[d.id]).length;
+  const bar=(label,done,total,color)=>{const pct=total?Math.round(done/total*100):0;
+    return `<div class="prog"><div class="plabel">${label}</div><div class="track"><div class="fill" style="width:${pct}%;background:${color}"></div></div><div class="pval">${done}/${total} · ${pct}%</div></div>`;};
+  document.getElementById("progressWrap").innerHTML=
+    bar("Readings",rDone,rd.length,"#2563eb")+bar("Deadlines done",dDone,dl.length,"#16a34a");
+}
+function renderToday(){
+  const now=new Date();const dow=DAYS[now.getDay()];
+  document.getElementById("todayDate").textContent=now.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+  const CO=getCourses();const items=[];
+  for(const k in CO){CO[k].sched.forEach(s=>{if(DAY3[s[0]]===dow)items.push({t:s[1],c:CO[k],room:s[2]});});}
+  items.sort((a,b)=>a.t<b.t?-1:1);
+  const todayISO=now.toISOString().slice(0,10);
+  const due=allDeadlines().filter(d=>d.d===todayISO&&!state.checks[d.id]);
+  let html=items.map(s=>`<div class="today-item"><span class="tt">${esc(s.t)}</span><span class="tag" style="background:${s.c.color}22;color:${s.c.color}"><span class="dot" style="background:${s.c.color}"></span>${esc(s.c.name)}</span><span class="mini">· ${esc(s.room)}</span></div>`).join("");
+  html+=due.map(d=>`<div class="today-item"><span class="tt soon">DUE</span><span class="tag" style="background:${courseColor(d.c)}22;color:${courseColor(d.c)}">${esc(courseShort(d.c))}</span><span>${esc(d.n)}</span></div>`).join("");
+  document.getElementById("todayWrap").innerHTML=html||'<p class="mini">No classes scheduled today. 🎈</p>';
+}
+function renderTimetable(){
+  const order=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];const CO=getCourses();const rows=[];
+  for(const day of order){const slots=[];
+    for(const k in CO){CO[k].sched.forEach(s=>{if(s[0]===day)slots.push({c:CO[k],time:s[1],room:s[2]});});}
+    slots.sort((a,b)=>a.time<b.time?-1:1);if(!slots.length)continue;
+    rows.push(`<tr><td style="font-weight:700;white-space:nowrap;vertical-align:top">${DAY3[day]}</td><td>${slots.map(s=>`<div style="margin:2px 0"><span class="tag" style="background:${s.c.color}22;color:${s.c.color}"><span class="dot" style="background:${s.c.color}"></span>${esc(s.c.name)}</span> <span class="date-c mini">${esc(s.time)}</span> <span class="mini">· ${esc(s.room)}</span></div>`).join("")}</td></tr>`);}
+  document.getElementById("timetable").innerHTML="<thead><tr><th>Day</th><th>Classes</th></tr></thead><tbody>"+rows.join("")+"</tbody>";
+}
+function deadlineRow(dl){
+  const done=!!state.checks[dl.id];const du=daysUntil(dl.d);
+  const soon=(!done&&du>=0&&du<=7)?`<span class="soon"> · ${du===0?"today":du+"d"}</span>`:(!done&&du<0?`<span class="mini"> · past</span>`:"");
+  return `<tr class="${done?'done':''}"><td><input type="checkbox" class="chk" ${done?'checked':''} onchange="toggleCheck('${dl.id}',this.checked)"></td>
+    <td class="date-c">${fmtDate(dl.d)}${soon}</td>
+    <td><span class="tag" style="background:${courseColor(dl.c)}22;color:${courseColor(dl.c)}"><span class="dot" style="background:${courseColor(dl.c)}"></span>${esc(courseShort(dl.c))}</span></td>
+    <td class="item-name">${esc(dl.n)} ${dl.warn?`<span class="warnflag" title="Best-guess date from a week-only syllabus entry (${esc(dl.note||'')}). Verify.">⚠️</span>`:""} ${dl.custom?'<span class="mini">(added)</span>':''}</td>
+    <td class="wt">${dl.wt?dl.wt+"%":"—"}</td></tr>`;
+}
+function renderDeadlines(){
+  document.getElementById("deadlineTbl").innerHTML="<thead><tr><th></th><th>Date</th><th>Course</th><th>Item</th><th>Weight</th></tr></thead><tbody>"+allDeadlines().map(deadlineRow).join("")+"</tbody>";
+  const sel=document.getElementById("dl-course");const CO=getCourses();
+  sel.innerHTML=Object.keys(CO).map(k=>`<option value="${k}">${esc(CO[k].name)}</option>`).join("");
+}
+function renderNextUp(){
+  const up=allDeadlines().filter(d=>!state.checks[d.id]&&daysUntil(d.d)>=0).slice(0,6);
+  document.getElementById("nextup").innerHTML="<thead><tr><th></th><th>Date</th><th>Course</th><th>Item</th><th>Weight</th></tr></thead><tbody>"+(up.map(deadlineRow).join("")||`<tr><td colspan="5" class="mini">Nothing upcoming — you're clear! 🎉</td></tr>`)+"</tbody>";
+}
+function renderReadings(){
+  const rows=allReadings().map(r=>{
+    const done=!!state.checks[r.id];const link=state.readingLinks[r.id]||r.link||"";
+    const linkcell=link?`<a href="${esc(link)}" target="_blank" rel="noopener">🔗 Open</a> <span class="addlink" style="cursor:pointer" onclick="editLink('${r.id}')">✎</span>`
+      :`<button class="addlink" onclick="editLink('${r.id}')">+ link</button>`;
+    return `<tr class="${done?'done':''}"><td><input type="checkbox" class="chk" ${done?'checked':''} onchange="toggleCheck('${r.id}',this.checked)"></td>
+      <td class="date-c">${esc(r.wk)}</td>
+      <td><span class="tag" style="background:${courseColor(r.c)}22;color:${courseColor(r.c)}"><span class="dot" style="background:${courseColor(r.c)}"></span>${esc(courseShort(r.c))}</span></td>
+      <td class="item-name reading-src">${esc(r.t)}</td>
+      <td class="linkcell">${linkcell}</td></tr>`;}).join("");
+  document.getElementById("readingTbl").innerHTML="<thead><tr><th></th><th>Week</th><th>Course</th><th>Reading</th><th>Link</th></tr></thead><tbody>"+rows+"</tbody>";
+}
+function renderCourses(){
+  const CO=getCourses();document.getElementById("courseCount").textContent="("+Object.keys(CO).length+")";
+  document.getElementById("courseCards").innerHTML=Object.keys(CO).map(k=>{const c=CO[k];
+    const gr=c.grading&&c.grading.length?`<div class="gradebreak"><table>${c.grading.map(g=>`<tr><td>${esc(g[0])}</td><td>${g[1]}%</td></tr>`).join("")}</table></div>`:(c.pending?`<div class="gradebreak mini">Grading pending — add it with Edit.</div>`:"");
+    return `<div class="course"><div class="bar" style="background:${c.color}"></div>
+      <div class="cardbtns"><button class="iconbtn" onclick="editCourse('${k}')">Edit</button></div>
+      <div class="body"><h3><span class="dot" style="background:${c.color}"></span>${esc(c.name)}${c.pending?' <span class="pending">syllabus pending</span>':''}</h3>
+      <div class="meta"><span class="ic">🕑</span><span>${c.sched.map(s=>`<b>${esc(s[0])}</b> ${esc(s[1])} · ${esc(s[2])}`).join(" &nbsp;/&nbsp; ")||"—"}</span></div>
+      <div class="meta"><span class="ic">👤</span><span>${esc(c.instr)||"—"}</span></div>
+      ${c.email?`<div class="meta"><span class="ic">✉️</span><a href="mailto:${esc(c.email)}" style="color:${c.color}">${esc(c.email)}</a></div>`:""}
+      ${c.oh?`<div class="meta"><span class="ic">🚪</span><span>${esc(c.oh)}</span></div>`:""}
+      ${c.credits?`<div class="meta"><span class="ic">🎓</span><span>${esc(c.credits)}</span></div>`:""}
+      ${gr}</div></div>`;}).join("");
+}
+function renderStudy(){
+  const blocks=STUDY_DEFAULT.filter(b=>!state.blocksDel[b.id]).concat(state.custom.blocks||[]);
+  blocks.sort((a,b)=>DAYS.indexOf(a.day)-DAYS.indexOf(b.day));
+  document.getElementById("sbList").innerHTML=blocks.map(b=>`<div class="sb"><div class="when">${esc(b.day)} · ${esc(b.time)}</div><div class="what">${esc(b.what)}</div><button class="del" onclick="delBlock('${b.id}')">✕</button></div>`).join("")||'<p class="mini">No study blocks yet.</p>';
+}
+function renderAttendance(){
+  const CO=getCourses();
+  document.getElementById("attWrap").innerHTML=Object.keys(CO).map(k=>{const c=CO[k];
+    const a=state.attendance[k]||{att:0,miss:0,limit:6};const limit=a.limit||6;
+    const pct=Math.min(100,Math.round(a.miss/limit*100));
+    let cls="att-ok",txt=`${a.miss} / ${limit} misses`;
+    if(a.miss>=limit){cls="att-bad";txt=`${a.miss} / ${limit} — LIMIT REACHED (risk of F)`;}
+    else if(a.miss>=limit-2){cls="att-warn";txt=`${a.miss} / ${limit} — ${limit-a.miss} left`;}
+    return `<div class="att-row"><div class="anm"><span class="dot" style="background:${c.color}"></span>${esc(c.name)}</div>
+      <div class="counter"><span class="mini">Attended</span><button onclick="att('${k}','att',-1)">−</button><span class="cval">${a.att}</span><button onclick="att('${k}','att',1)">+</button></div>
+      <div class="counter"><span class="mini">Missed</span><button onclick="att('${k}','miss',-1)">−</button><span class="cval">${a.miss}</span><button onclick="att('${k}','miss',1)">+</button></div>
+      <span class="att-status ${cls}">${txt}</span>
+      <span class="addlink" style="cursor:pointer" onclick="att('${k}','limit',0)" title="Set miss limit">✎ limit</span></div>`;}).join("");
+}
+function renderCalc(){
+  const CO=getCourses();
+  document.getElementById("calcWrap").innerHTML=Object.keys(CO).filter(k=>CO[k].grading&&CO[k].grading.length).map(k=>{const c=CO[k];
+    const rows=c.grading.map((g,i)=>{const key=k+"|"+i;const v=state.grades[key]!=null?state.grades[key]:"";
+      return `<div class="calc-row"><span class="nm">${esc(g[0])}</span><span class="wtag">${g[1]}%</span><input type="number" min="0" max="100" placeholder="score %" value="${v}" oninput="setGrade('${key}',this.value)"></div>`;}).join("");
+    return `<div class="calc-course"><h3><span class="dot" style="background:${c.color}"></span>${esc(c.name)}</h3>${rows}
+      <div class="calc-out" id="out-${k}"></div>
+      <div class="target-line">Target grade:
+        <select onchange="state.grades['${k}|target']=this.value;pushKey('grades/${k}__target',this.value);computeCalc('${k}')">
+        ${["A","A-","B+","B","B-","C+","C"].map(l=>`<option ${state.grades[k+'|target']===l?'selected':''}>${l}</option>`).join("")}</select>
+        <span id="need-${k}"></span></div></div>`;}).join("")||'<p class="mini">Add grading breakdowns via Courses → Edit to use the calculator.</p>';
+  Object.keys(CO).forEach(k=>{if(CO[k].grading&&CO[k].grading.length)computeCalc(k);});
+}
+function computeCalc(k){
+  const c=getCourses()[k];if(!c)return;let earned=0,doneW=0;
+  c.grading.forEach((g,i)=>{const v=parseFloat(state.grades[k+"|"+i]);if(!isNaN(v)){earned+=v*g[1]/100;doneW+=g[1];}});
+  const out=document.getElementById("out-"+k);if(!out)return;const running=doneW>0?(earned/doneW*100):0;
+  out.innerHTML=doneW>0?`<div><div class="bignum">${running.toFixed(1)}%</div><div class="lbl">running (${doneW}% graded)</div></div><div class="gradeltr">${letterFor(running)}</div><div><div class="bignum">${earned.toFixed(1)}</div><div class="lbl">of 100 banked</div></div>`:`<div class="mini">Enter a score to see your running grade.</div>`;
+  const tLetter=state.grades[k+"|target"]||"A-";const tMin=GRADE_SCALE.find(x=>x[1]===tLetter)[0];
+  const remW=100-doneW;const needAvg=remW>0?((tMin-earned)/remW*100):null;const el=document.getElementById("need-"+k);
+  if(remW<=0)el.innerHTML=` — all graded. Final: <b>${running.toFixed(1)}% (${letterFor(running)})</b>.`;
+  else if(needAvg<=0)el.innerHTML=` — already secured ✅.`;
+  else if(needAvg>100)el.innerHTML=` — <b style="color:var(--bad)">not reachable</b> (needs ${needAvg.toFixed(0)}% on remaining ${remW}%).`;
+  else el.innerHTML=` — need <b>${needAvg.toFixed(1)}%</b> avg on remaining ${remW}% for <b>${tLetter}</b>.`;
+}
+
+/* ================= ACTIONS ================= */
+function toggleCheck(id,val){id=String(id);if(val)state.checks[id]=true;else delete state.checks[id];
+  pushKey("checks/"+id,val?true:false);renderDeadlines();renderNextUp();renderReadings();renderProgress();renderToday();}
+function setGrade(key,val){if(val==="")delete state.grades[key];else state.grades[key]=val;
+  pushKey("grades/"+key.replace(/\|/g,"__"),val===""?null:val);computeCalc(key.split("|")[0]);}
+function addDeadline(){const n=document.getElementById("dl-name").value.trim();const c=document.getElementById("dl-course").value;const d=document.getElementById("dl-date").value;const wt=parseFloat(document.getElementById("dl-wt").value)||0;
+  if(!n||!d){alert("Give the deadline a name and a date.");return;}
+  state.custom.deadlines.push({id:"cust-"+Date.now(),c,n,wt,d,custom:true});
+  document.getElementById("dl-name").value="";document.getElementById("dl-wt").value="";
+  pushKey("custom",state.custom);renderDeadlines();renderNextUp();renderProgress();}
+function addBlock(){const day=document.getElementById("sb-day").value;const time=document.getElementById("sb-time").value.trim();const what=document.getElementById("sb-what").value.trim();
+  if(!time||!what){alert("Add a time and what to work on.");return;}
+  state.custom.blocks.push({id:"cust-"+Date.now(),day,time,what});
+  document.getElementById("sb-time").value="";document.getElementById("sb-what").value="";
+  pushKey("custom",state.custom);renderStudy();}
+function delBlock(id){if(String(id).startsWith("cust-"))state.custom.blocks=state.custom.blocks.filter(b=>b.id!==id);else state.blocksDel[id]=true;
+  pushKey("custom",state.custom);pushKey("blocksDel",state.blocksDel);renderStudy();}
+function att(k,field,delta){const a=state.attendance[k]||{att:0,miss:0,limit:6};
+  if(field==="limit"){const v=prompt("Miss limit for this course (classes you can miss before F):",a.limit||6);if(v===null)return;a.limit=Math.max(1,parseInt(v)||6);}
+  else{a[field]=Math.max(0,(a[field]||0)+delta);}
+  state.attendance[k]=a;pushKey("attendance",state.attendance);renderAttendance();}
+
+/* ================= MODAL: links, readings, courses ================= */
+const overlay=document.getElementById("overlay"),modalBody=document.getElementById("modalBody");
+function closeModal(){overlay.classList.remove("show");modalBody.innerHTML="";}
+overlay.addEventListener("click",e=>{if(e.target===overlay)closeModal();});
+function openModal(html){modalBody.innerHTML=html;overlay.classList.add("show");}
+
+function editLink(rid){const cur=state.readingLinks[rid]||(allReadings().find(r=>r.id===rid)||{}).link||"";
+  openModal(`<h3>Attach a link</h3><div class="field"><label>URL (Google Drive, DOI, PDF…)</label>
+    <input id="lk" placeholder="https://…" value="${esc(cur)}"></div>
+    <p class="mini">Tip: for a file, upload it to Google Drive, press Share → copy link, and paste it here.</p>
+    <div class="modal-actions"><button class="btn danger" onclick="saveLink('${rid}','')">Remove</button>
+    <div class="right"><button class="btn gray" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveLink('${rid}',document.getElementById('lk').value.trim())">Save</button></div></div>`);}
+function saveLink(rid,url){if(url)state.readingLinks[rid]=url;else delete state.readingLinks[rid];
+  pushKey("readingLinks",state.readingLinks);closeModal();renderReadings();}
+
+function editReading(rid){const CO=getCourses();const r=rid?(state.customReadings.find(x=>x.id===rid)||{}):{};
+  openModal(`<h3>${rid?"Edit":"Add"} reading</h3>
+    <div class="field"><label>Course</label><select id="r-c">${Object.keys(CO).map(k=>`<option value="${k}" ${r.c===k?"selected":""}>${esc(CO[k].name)}</option>`).join("")}</select></div>
+    <div class="field row2"><div><label>Week label</label><input id="r-wk" placeholder="e.g. W3 · Sep 15–21" value="${esc(r.wk||'')}"></div>
+    <div><label>Date (for ordering)</label><input id="r-d" type="date" value="${esc(r.d||'')}"></div></div>
+    <div class="field"><label>Reading</label><textarea id="r-t" rows="2" placeholder="Author (year) Title…">${esc(r.t||'')}</textarea></div>
+    <div class="field"><label>Link (optional)</label><input id="r-link" placeholder="https://…" value="${esc(r.link||'')}"></div>
+    <div class="modal-actions">${rid?`<button class="btn danger" onclick="delReading('${rid}')">Delete</button>`:'<span></span>'}
+    <div class="right"><button class="btn gray" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveReading('${rid||''}')">Save</button></div></div>`);}
+function saveReading(rid){const o={c:document.getElementById("r-c").value,wk:document.getElementById("r-wk").value.trim(),d:document.getElementById("r-d").value,t:document.getElementById("r-t").value.trim(),link:document.getElementById("r-link").value.trim(),custom:true};
+  if(!o.t||!o.d){alert("Add the reading text and a date.");return;}
+  if(rid){const i=state.customReadings.findIndex(x=>x.id===rid);o.id=rid;state.customReadings[i]=o;}else{o.id="cust-"+Date.now();state.customReadings.push(o);}
+  pushKey("customReadings",state.customReadings);closeModal();renderReadings();renderProgress();}
+function delReading(rid){state.customReadings=state.customReadings.filter(x=>x.id!==rid);pushKey("customReadings",state.customReadings);closeModal();renderReadings();renderProgress();}
+
+function slotRowHTML(s){s=s||["Mon","",""];return `<div class="slotrow"><select class="s-day">${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>`<option ${s[0]===d?"selected":""}>${d}</option>`).join("")}</select>
+  <input class="s-time" placeholder="15:15–16:30" value="${esc(s[1])}" style="width:120px"><input class="s-room" placeholder="room" value="${esc(s[2])}" style="width:90px"><button class="del" onclick="this.parentNode.remove()">✕</button></div>`;}
+function grRowHTML(g){g=g||["",0];return `<div class="grrow"><input class="g-nm" placeholder="Component" value="${esc(g[0])}" style="flex:1"><input class="g-wt" type="number" placeholder="%" value="${g[1]||''}" style="width:70px"><button class="del" onclick="this.parentNode.remove()">✕</button></div>`;}
+function editCourse(k){const CO=getCourses();const c=k?CO[k]:{name:"",color:"#e11d48",instr:"",email:"",office:"",oh:"",credits:"",sched:[["Mon","",""]],grading:[]};
+  const isDefault=k&&COURSES[k];
+  openModal(`<h3>${k?"Edit course":"Add course"}</h3>
+    <div class="field row2"><div><label>Name</label><input id="c-name" value="${esc(c.name)}"></div><div style="flex:0 0 60px"><label>Color</label><input id="c-color" type="color" value="${esc(c.color||'#e11d48')}"></div></div>
+    <div class="field"><label>Instructor</label><input id="c-instr" value="${esc(c.instr)}"></div>
+    <div class="field row2"><div><label>Email</label><input id="c-email" value="${esc(c.email)}"></div><div><label>Credits</label><input id="c-credits" value="${esc(c.credits)}" placeholder="5 ECTS"></div></div>
+    <div class="field"><label>Office hours</label><input id="c-oh" value="${esc(c.oh)}"></div>
+    <div class="field"><label>Schedule (day · time · room)</label><div id="slots">${(c.sched||[]).map(slotRowHTML).join("")}</div><button class="btn sm gray" onclick="document.getElementById('slots').insertAdjacentHTML('beforeend',slotRowHTML())">+ time slot</button></div>
+    <div class="field"><label>Grading (component · %)</label><div id="grs">${(c.grading||[]).map(grRowHTML).join("")}</div><button class="btn sm gray" onclick="document.getElementById('grs').insertAdjacentHTML('beforeend',grRowHTML())">+ component</button></div>
+    <div class="modal-actions">${k?`<button class="btn danger" onclick="delCourse('${k}',${isDefault?'true':'false'})">Delete</button>`:'<span></span>'}
+    <div class="right"><button class="btn gray" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveCourse('${k||''}')">Save</button></div></div>`);}
+function saveCourse(k){const name=document.getElementById("c-name").value.trim();if(!name){alert("Course needs a name.");return;}
+  const sched=[...document.querySelectorAll("#slots .slotrow")].map(r=>[r.querySelector(".s-day").value,r.querySelector(".s-time").value.trim(),r.querySelector(".s-room").value.trim()]).filter(s=>s[1]||s[2]);
+  const grading=[...document.querySelectorAll("#grs .grrow")].map(r=>[r.querySelector(".g-nm").value.trim(),parseFloat(r.querySelector(".g-wt").value)||0]).filter(g=>g[0]);
+  const c={name,color:document.getElementById("c-color").value,instr:document.getElementById("c-instr").value.trim(),email:document.getElementById("c-email").value.trim(),office:"",oh:document.getElementById("c-oh").value.trim(),credits:document.getElementById("c-credits").value.trim(),sched,grading,pending:false};
+  const key=k||("cust-"+Date.now());
+  if(k&&COURSES[k]){state.coursesOverride[key]=c;pushKey("coursesOverride",state.coursesOverride);}
+  else{state.customCourses[key]=c;pushKey("customCourses",state.customCourses);}
+  closeModal();renderAll();}
+function delCourse(k,isDefault){if(!confirm("Delete this course from the dashboard?"))return;
+  if(isDefault){state.coursesHidden[k]=true;delete state.coursesOverride[k];pushKey("coursesHidden",state.coursesHidden);pushKey("coursesOverride",state.coursesOverride);}
+  else{delete state.customCourses[k];pushKey("customCourses",state.customCourses);}
+  closeModal();renderAll();}
+
+/* ================= NAV / THEME ================= */
+document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest(".tab");if(!b)return;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));b.classList.add("active");
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById("p-"+b.dataset.p).classList.add("active");window.scrollTo(0,0);});
+function toggleTheme(){const r=document.documentElement;const cur=r.getAttribute("data-theme");const next=cur==="dark"?"light":(cur==="light"?"":"dark");
+  if(next)r.setAttribute("data-theme",next);else r.removeAttribute("data-theme");try{localStorage.setItem("dash_theme",next)}catch(e){}}
+(function(){try{const t=localStorage.getItem("dash_theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}})();
+
+function renderAll(){renderProgress();renderToday();renderTimetable();renderCourses();renderDeadlines();renderNextUp();renderReadings();renderAttendance();renderStudy();renderCalc();}
+renderAll();
+initFirebase();
+</script>
